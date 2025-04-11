@@ -12,9 +12,7 @@ type User = {
   gender: string;
   phone: string;
   age: number;
-  address: {
-    city: string;
-  };
+  address: string;
 };
 
 type Column<T> = {
@@ -42,17 +40,15 @@ export default function App() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // Debounce logic
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedSearch(searchInput);
-      setPage(0); // Reset trang về 0 khi tìm kiếm
-    }, 500); // Đợi 500ms không gõ mới set lại
+      setPage(0);
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, [searchInput]);
 
-  // Build URL
   const searchQuery = debouncedSearch
     ? `/search?q=${debouncedSearch}`
     : `?limit=${pageSize}&skip=${page * pageSize}`;
@@ -60,26 +56,15 @@ export default function App() {
 
   const { data, isLoading } = useSWR(url, fetcher);
 
-  const users: User[] = (data?.users || []).map((user: User) => ({
+  const users: User[] = (data?.users || []).map((user: any) => ({
     ...user,
     address: user.address.city,
-  }) as unknown as User);
+  }));
 
   const total = data?.total || 0;
 
   return (
     <div className="p-6 space-y-4">
-      {/* Ô tìm kiếm */}
-      <div className="max-w-sm">
-        <input
-          type="text"
-          placeholder="Tìm kiếm người dùng..."
-          className="w-full px-4 py-2 border border-gray-300 rounded"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
-      </div>
-
       {isLoading ? (
         <p>Đang tải...</p>
       ) : (
@@ -96,6 +81,8 @@ export default function App() {
           }}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
         />
       )}
     </div>
