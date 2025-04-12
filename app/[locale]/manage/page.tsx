@@ -3,16 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import ReusableTable from '../../../components/ui-custom/ReusableTable';
+import SelectDemo from '../../../components/ui-custom/SelectDemo';
 
 type User = {
   id: number;
-  firstName: string;
-  lastName: string;
+  username: string;
   email: string;
-  gender: string;
+  role: string;
   phone: string;
   age: number;
   address: string;
+  ip: string; 
 };
 
 type Column<T> = {
@@ -21,11 +22,11 @@ type Column<T> = {
 };
 
 const columns: Column<User>[] = [
-  { header: 'Họ', accessor: 'firstName' },
-  { header: 'Tên', accessor: 'lastName' },
+  { header: 'Tên người dùng', accessor: 'username' },
   { header: 'Email', accessor: 'email' },
-  { header: 'Giới tính', accessor: 'gender' },
+  { header: 'Vai trò', accessor: 'role' },
   { header: 'Số điện thoại', accessor: 'phone' },
+  { header: 'Ip', accessor: 'ip' },
   { header: 'Tuổi', accessor: 'age' },
   { header: 'Thành phố', accessor: 'address' },
 ];
@@ -45,7 +46,6 @@ export default function App() {
       setDebouncedSearch(searchInput);
       setPage(0);
     }, 500);
-
     return () => clearTimeout(timeout);
   }, [searchInput]);
 
@@ -65,26 +65,24 @@ export default function App() {
 
   return (
     <div className="p-6 space-y-4">
-      {isLoading ? (
-        <p>Đang tải...</p>
-      ) : (
-        <ReusableTable<User>
-          columns={columns}
-          data={users}
-          pageSize={pageSize}
-          currentPage={page}
-          total={total}
-          onPageChange={setPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setPage(0);
-          }}
-          selectedIds={selectedIds}
-          setSelectedIds={setSelectedIds}
-          searchInput={searchInput}
-          setSearchInput={setSearchInput}
-        />
-      )}
+      {/* <SelectDemo /> */}
+      <ReusableTable<User>
+        columns={columns}
+        data={users}
+        pageSize={pageSize}
+        currentPage={page}
+        total={total}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
+        isLoading={isLoading} // Thêm dòng này
+      />
     </div>
   );
 }
