@@ -198,7 +198,9 @@ export default function ReusableTable<T extends { id: number | string, image?: s
                         {row[col.accessor] ? 'Hoạt động' : 'Không hoạt động'}
                       </div>
                     ) : (
-                      <span className='capitalize'>{String(row[col.accessor])}</span>
+                      <span className={`capitalize ${col.accessor == "fullName" ? 'font-bold text-[13.5px]' : ''}`}>
+                      {String(row[col.accessor])}
+                    </span>
                     )}
                   </TableCell>
                 ))}
