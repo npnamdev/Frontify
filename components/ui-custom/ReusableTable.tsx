@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/popover"
 import {
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
-  ChevronDown, Search, Plus, EllipsisVertical
+  ChevronDown, Search, Plus, EllipsisVertical, Columns2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
@@ -125,11 +125,13 @@ export default function ReusableTable<T extends { id: number | string, image?: s
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                Hiển thị cột <ChevronDown className="ml-2 w-4 h-4" />
+              <Button variant="outline" className='px-2.5'>
+              <Columns2 strokeWidth={"1.75"} className="w-4 h-4" />
+                Hiển thị cột <ChevronDown className="ml-1 w-4 h-4" />
               </Button>
+              
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="center">
               {columns.map((col) => (
                 <DropdownMenuCheckboxItem
                   key={String(col.accessor)}
@@ -198,7 +200,7 @@ export default function ReusableTable<T extends { id: number | string, image?: s
                         {row[col.accessor] ? 'Hoạt động' : 'Không hoạt động'}
                       </div>
                     ) : (
-                      <span className={`capitalize ${col.accessor == "fullName" ? 'font-bold text-[13.5px]' : ''}`}>
+                      <span className={`${col.accessor == "fullName" ? 'font-bold text-[13.5px]' : ''}`}>
                       {String(row[col.accessor])}
                     </span>
                     )}
@@ -252,10 +254,10 @@ export default function ReusableTable<T extends { id: number | string, image?: s
         </div>
         <div className="flex items-center gap-3">
           <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
-            <SelectTrigger className="w-[80px] h-9">
+            <SelectTrigger className="w-[80px]">
               <SelectValue placeholder="Chọn số lượng" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="min-w-[65px]">
               {[5, 10, 15, 20, 50].map((size) => (
                 <SelectItem key={size} value={size.toString()}>
                   {size}

@@ -1,167 +1,107 @@
-'use client';
 
-import React, { useState, useEffect } from 'react';
-import useSWR from 'swr';
-import ReusableTable from '../../../components/ui-custom/ReusableTable';
-import { Pencil, Trash2, Eye, Ban, Mail, Clipboard } from 'lucide-react';
-import moment from 'moment';
-import { toast } from "sonner";
-import copy from 'clipboard-copy';
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-type User = {
-  id: string;
-  username: string;
-  email: string;
-  fullName: string;
-  gender: string;
-  dateOfBirth: string;
-  phoneNumber: string;
-  avatarUrl: string;
-  role: string;
-  isActive: boolean;
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
-  address: string;
-};
+import { ChartAreaInteractive } from "@/components/ui-custom/chart-area-interactive"
 
-type Column<T> = {
-  header: string;
-  accessor: keyof T;
-  visible?: boolean;
-  type?: 'group' | 'image' | 'date' | 'badge';
-};
-
-const columns: Column<User>[] = [
-  // { header: 'Id', accessor: 'id' },
-  { header: 'Họ tên', accessor: 'fullName' },
-  { header: 'Tên người dùng', accessor: 'username' },
-  { header: 'Email', accessor: 'email' },
-  { header: 'Vai trò', accessor: 'role' },
-  { header: 'Trạng thái', accessor: 'isActive', type: "badge" },
-  { header: 'Ngày tạo', accessor: 'createdAt' },
-  { header: 'Giới tính', accessor: 'gender', visible: false },
-  { header: 'Ngày sinh', accessor: 'dateOfBirth', visible: false },
-  { header: 'Số điện thoại', accessor: 'phoneNumber', visible: false },
-  { header: 'Ngày cập nhật', accessor: 'updatedAt', visible: false },
-  { header: 'Địa chỉ', accessor: 'address', visible: false },
-];
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-export default function App() {
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
-
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-      setPage(0);
-    }, 500);
-    return () => clearTimeout(timeout);
-  }, [searchInput]);
-
-  const queryParams = new URLSearchParams({
-    limit: String(pageSize),
-    page: String(page + 1),
-  });
-
-  if (debouncedSearch) {
-    queryParams.append('search', debouncedSearch);
-    queryParams.append('searchFields', 'fullName,username,email');
-  }
-
-  const url = `https://api.wedly.info/api/users?${queryParams.toString()}`;
-
-  const { data, isLoading } = useSWR(url, fetcher);
-
-  const users: User[] = (data?.data || []).map((user: any) => ({
-    id: user._id,
-    username: user.username,
-    email: user.email,
-    fullName: user.fullName,
-    gender: user.gender,
-    dateOfBirth: new Date(user.dateOfBirth).toLocaleDateString(),
-    phoneNumber: user.phoneNumber,
-    avatarUrl: user.avatarUrl,
-    role: user.role?.name || '',
-    isActive: user.isActive,
-    emailVerified: user.emailVerified,
-    createdAt: moment(user.createdAt).format('DD/MM/YYYY'),
-    updatedAt: moment(user.updatedAt).format('DD/MM/YYYY'),
-    address: user.address
-      ? `${user.address.street}, ${user.address.city}, ${user.address.state}, ${user.address.postalCode}, ${user.address.country}`
-      : '',
-  }));
-
-  const total = data?.pagination?.total || 0;
-
-  const copyToClipboardById = (id: string | number) => {
-    copy(`${id}`).then(() => {
-      toast.success(`Đã sao chép Id: ${id}`);
-    }).catch((error) => {
-      toast.error("Đã xảy ra lỗi khi sao chép.");
-    });
-  }
-
+export default function DashBoardPage() {
   return (
-    <div className="p-6 space-y-4">
-      <ReusableTable<User>
-        columns={columns}
-        data={users}
-        pageSize={pageSize}
-        currentPage={page}
-        total={total}
-        onPageChange={setPage}
-        onPageSizeChange={(size) => { setPageSize(size); setPage(0); }}
-        selectedIds={selectedIds}
-        setSelectedIds={setSelectedIds}
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        isLoading={isLoading}
-        options={[
-          {
-            value: "copy",
-            label: "Copy ID",
-            icon: <Clipboard size={16} strokeWidth={1.5} />,
-            action: (id) => copyToClipboardById(id)
-          },
-          {
-            value: 'view',
-            label: 'Xem chi tiết',
-            icon: <Eye size={16} strokeWidth={1.5} />,
-            action: (id) => console.log('Xem chi tiết user với id:', id),
-          },
-          {
-            value: 'edit',
-            label: 'Chỉnh sửa',
-            icon: <Pencil size={16} strokeWidth={1.5} />,
-            action: (id) => console.log('Chỉnh sửa user với id:', id),
-          },
-          {
-            value: 'delete',
-            label: 'Xoá',
-            icon: <Trash2 size={16} strokeWidth={1.5} />,
-            action: (id) => console.log('Xoá user với id:', id),
-          },
-          {
-            value: 'ban',
-            label: 'Khoá tài khoản',
-            icon: <Ban size={16} strokeWidth={1.5} />,
-            action: (id) => console.log('Khoá tài khoản user với id:', id),
-          },
-          {
-            value: 'email',
-            label: 'Gửi Email',
-            icon: <Mail size={16} strokeWidth={1.5} />,
-            action: (id) => console.log('Gửi email đến user với id:', id),
-          },
-        ]}
-      />
+    <div className="flex flex-1 flex-col gap-4 py-2 md:py-4 px-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="@container/card">
+          <CardHeader className="relative">
+            <CardDescription>Total Revenue</CardDescription>
+            <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+              $1,250.00
+            </CardTitle>
+            <div className="absolute right-4 top-4">
+              <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+                <TrendingUpIcon className="size-3" />
+                +12.5%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="line-clamp-1 flex gap-2 font-medium">
+              Trending up this month <TrendingUpIcon className="size-4" />
+            </div>
+            <div className="text-muted-foreground">
+              Visitors for the last 6 months
+            </div>
+          </CardFooter>
+        </Card>
+        <Card className="@container/card">
+          <CardHeader className="relative">
+            <CardDescription>New Customers</CardDescription>
+            <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+              1,234
+            </CardTitle>
+            <div className="absolute right-4 top-4">
+              <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+                <TrendingDownIcon className="size-3" />
+                -20%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="line-clamp-1 flex gap-2 font-medium">
+              Down 20% this period <TrendingDownIcon className="size-4" />
+            </div>
+            <div className="text-muted-foreground">
+              Acquisition needs attention
+            </div>
+          </CardFooter>
+        </Card>
+        <Card className="@container/card">
+          <CardHeader className="relative">
+            <CardDescription>Active Accounts</CardDescription>
+            <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+              45,678
+            </CardTitle>
+            <div className="absolute right-4 top-4">
+              <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+                <TrendingUpIcon className="size-3" />
+                +12.5%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="line-clamp-1 flex gap-2 font-medium">
+              Strong user retention <TrendingUpIcon className="size-4" />
+            </div>
+            <div className="text-muted-foreground">Engagement exceed targets</div>
+          </CardFooter>
+        </Card>
+        <Card className="@container/card">
+          <CardHeader className="relative">
+            <CardDescription>Growth Rate</CardDescription>
+            <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
+              4.5%
+            </CardTitle>
+            <div className="absolute right-4 top-4">
+              <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
+                <TrendingUpIcon className="size-3" />
+                +4.5%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="line-clamp-1 flex gap-2 font-medium">
+              Steady performance <TrendingUpIcon className="size-4" />
+            </div>
+            <div className="text-muted-foreground">Meets growth projections</div>
+          </CardFooter>
+        </Card>
+      </div>
+
+      <ChartAreaInteractive />
     </div>
   );
 }

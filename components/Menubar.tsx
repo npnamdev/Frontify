@@ -34,7 +34,6 @@ export default function Menubar() {
                 icon: UsersRound,
                 items: [
                     { title: t('userAccounts'), url: "/manage/user-accounts" },
-                    { title: t('accountGroups'), url: "/manage/account-groups" },
                     { title: t('rolesPermissions'), url: "/manage/roles-permissions" },
                 ],
             },
