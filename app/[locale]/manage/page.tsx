@@ -3,32 +3,46 @@
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import ReusableTable from '../../../components/ui-custom/ReusableTable';
-import SelectDemo from '../../../components/ui-custom/SelectDemo';
+import { Pencil, Trash2, Eye, Ban, Mail } from 'lucide-react';
+import moment from 'moment';
 
 type User = {
-  id: number;
+  id: string;
   username: string;
   email: string;
+  fullName: string;
+  gender: string;
+  dateOfBirth: string;
+  phoneNumber: string;
+  avatarUrl: string;
   role: string;
-  phone: string;
-  age: number;
+  isActive: boolean;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
   address: string;
-  ip: string; 
 };
 
 type Column<T> = {
   header: string;
   accessor: keyof T;
+  visible?: boolean;
+  type?: 'group' | 'image' | 'date' | 'badge';
 };
 
 const columns: Column<User>[] = [
   { header: 'Tên người dùng', accessor: 'username' },
   { header: 'Email', accessor: 'email' },
   { header: 'Vai trò', accessor: 'role' },
-  { header: 'Số điện thoại', accessor: 'phone' },
-  { header: 'Ip', accessor: 'ip' },
-  { header: 'Tuổi', accessor: 'age' },
-  { header: 'Thành phố', accessor: 'address' },
+  { header: 'Trạng thái', accessor: 'isActive', type: "badge" },
+  { header: 'Ngày tạo', accessor: 'createdAt' },
+
+  { header: 'Họ tên', accessor: 'fullName', visible: false },
+  { header: 'Giới tính', accessor: 'gender', visible: false },
+  { header: 'Ngày sinh', accessor: 'dateOfBirth', visible: false },
+  { header: 'Số điện thoại', accessor: 'phoneNumber', visible: false },
+  { header: 'Ngày cập nhật', accessor: 'updatedAt', visible: false },
+  { header: 'Địa chỉ', accessor: 'address', visible: false },
 ];
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -49,23 +63,43 @@ export default function App() {
     return () => clearTimeout(timeout);
   }, [searchInput]);
 
-  const searchQuery = debouncedSearch
-    ? `/search?q=${debouncedSearch}`
-    : `?limit=${pageSize}&skip=${page * pageSize}`;
-  const url = `https://dummyjson.com/users${searchQuery}`;
+  const queryParams = new URLSearchParams({
+    limit: String(pageSize),
+    page: String(page + 1),
+  });
+
+  if (debouncedSearch) {
+    queryParams.append('search', debouncedSearch);
+    queryParams.append('searchFields', 'username,email');
+  }
+
+  const url = `https://api.wedly.info/api/users?${queryParams.toString()}`;
 
   const { data, isLoading } = useSWR(url, fetcher);
 
-  const users: User[] = (data?.users || []).map((user: any) => ({
-    ...user,
-    address: user.address.city,
+  const users: User[] = (data?.data || []).map((user: any) => ({
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    fullName: user.fullName,
+    gender: user.gender,
+    dateOfBirth: new Date(user.dateOfBirth).toLocaleDateString(),
+    phoneNumber: user.phoneNumber,
+    avatarUrl: user.avatarUrl,
+    role: user.role,
+    isActive: user.isActive,
+    emailVerified: user.emailVerified,
+    createdAt: moment(user.createdAt).format('DD/MM/YYYY'),
+    updatedAt: moment(user.updatedAt).format('DD/MM/YYYY'),
+    address: user.address
+      ? `${user.address.street}, ${user.address.city}, ${user.address.state}, ${user.address.postalCode}, ${user.address.country}`
+      : '',
   }));
 
-  const total = data?.total || 0;
+  const total = data?.pagination?.total || 0;
 
   return (
     <div className="p-6 space-y-4">
-      {/* <SelectDemo /> */}
       <ReusableTable<User>
         columns={columns}
         data={users}
@@ -81,7 +115,39 @@ export default function App() {
         setSelectedIds={setSelectedIds}
         searchInput={searchInput}
         setSearchInput={setSearchInput}
-        isLoading={isLoading} // Thêm dòng này
+        isLoading={isLoading}
+        options={[
+          {
+            value: 'edit',
+            label: 'Chỉnh sửa',
+            icon: <Pencil size={14} />,
+            action: (id) => console.log('Chỉnh sửa user với id:', id),
+          },
+          {
+            value: 'delete',
+            label: 'Xoá',
+            icon: <Trash2 size={14} />,
+            action: (id) => console.log('Xoá user với id:', id),
+          },
+          {
+            value: 'view',
+            label: 'Xem chi tiết',
+            icon: <Eye size={14} />,
+            action: (id) => console.log('Xem chi tiết user với id:', id),
+          },
+          {
+            value: 'ban',
+            label: 'Khoá tài khoản',
+            icon: <Ban size={14} />,
+            action: (id) => console.log('Khoá tài khoản user với id:', id),
+          },
+          {
+            value: 'email',
+            label: 'Gửi Email',
+            icon: <Mail size={14} />,
+            action: (id) => console.log('Gửi email đến user với id:', id),
+          },
+        ]}
       />
     </div>
   );
