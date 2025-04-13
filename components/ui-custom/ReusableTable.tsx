@@ -31,7 +31,7 @@ type Column<T> = {
   header: string;
   accessor: keyof T;
   visible?: boolean; // thêm để kiểm soát cột mặc định
-  type?: 'group' | 'image' | 'date' | 'badge';
+  type?: 'group' | 'image' | 'system' | 'badge';
 };
 
 type ActionOption = {
@@ -126,10 +126,10 @@ export default function ReusableTable<T extends { id: number | string, image?: s
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className='px-2.5'>
-              <Columns2 strokeWidth={"1.75"} className="w-4 h-4" />
+                <Columns2 strokeWidth={"1.75"} className="w-4 h-4" />
                 Hiển thị cột <ChevronDown className="ml-1 w-4 h-4" />
               </Button>
-              
+
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
               {columns.map((col) => (
@@ -199,10 +199,17 @@ export default function ReusableTable<T extends { id: number | string, image?: s
                       >
                         {row[col.accessor] ? 'Hoạt động' : 'Không hoạt động'}
                       </div>
+                    ) : col.type === 'system' ? (
+                      <div
+                        className={`rounded-lg px-2 py-1 text-xs w-min text-white ${row[col.accessor] ? 'bg-[#3eca65]' : 'bg-[#f45d5d]'
+                          }`}
+                      >
+                        {String(row[col.accessor])}
+                      </div>
                     ) : (
                       <span className={`${col.accessor == "fullName" ? 'font-bold text-[13.5px]' : ''}`}>
-                      {String(row[col.accessor])}
-                    </span>
+                        {String(row[col.accessor])}
+                      </span>
                     )}
                   </TableCell>
                 ))}
