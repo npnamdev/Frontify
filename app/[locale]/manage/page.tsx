@@ -31,13 +31,12 @@ type Column<T> = {
 };
 
 const columns: Column<User>[] = [
+  { header: 'Họ tên', accessor: 'fullName' },
   { header: 'Tên người dùng', accessor: 'username' },
   { header: 'Email', accessor: 'email' },
   { header: 'Vai trò', accessor: 'role' },
   { header: 'Trạng thái', accessor: 'isActive', type: "badge" },
   { header: 'Ngày tạo', accessor: 'createdAt' },
-
-  { header: 'Họ tên', accessor: 'fullName', visible: false },
   { header: 'Giới tính', accessor: 'gender', visible: false },
   { header: 'Ngày sinh', accessor: 'dateOfBirth', visible: false },
   { header: 'Số điện thoại', accessor: 'phoneNumber', visible: false },
@@ -86,7 +85,7 @@ export default function App() {
     dateOfBirth: new Date(user.dateOfBirth).toLocaleDateString(),
     phoneNumber: user.phoneNumber,
     avatarUrl: user.avatarUrl,
-    role: user.role,
+    role: user.role?.name || '',
     isActive: user.isActive,
     emailVerified: user.emailVerified,
     createdAt: moment(user.createdAt).format('DD/MM/YYYY'),

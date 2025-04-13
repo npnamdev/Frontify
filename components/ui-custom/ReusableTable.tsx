@@ -125,7 +125,7 @@ export default function ReusableTable<T extends { id: number | string, image?: s
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
-                Tuỳ chỉnh cột <ChevronDown className="ml-2 w-4 h-4" />
+                Hiển thị cột <ChevronDown className="ml-2 w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -152,7 +152,7 @@ export default function ReusableTable<T extends { id: number | string, image?: s
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-100 h-[50px] whitespace-nowrap">
-            <TableHead className="px-4 w-[40px]">
+            <TableHead className="px-5 w-[45px]">
               <Checkbox checked={isAllSelected} onCheckedChange={toggleSelectAll} />
             </TableHead>
             {visibleColumns.map((col, idx) => (
@@ -166,20 +166,20 @@ export default function ReusableTable<T extends { id: number | string, image?: s
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-6">
+              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-8">
                 Đang tải dữ liệu...
               </TableCell>
             </TableRow>
           ) : data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-6">
+              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-8">
                 Không có dữ liệu
               </TableCell>
             </TableRow>
           ) : (
             data.map((row) => (
               <TableRow key={row.id} className={`h-[50px] py-0 ${selectedIds.includes(row.id) ? 'bg-gray-100' : ''}`}>
-                <TableCell className="px-4 w-[40px] whitespace-nowrap">
+                <TableCell className="px-5 w-[45px] whitespace-nowrap">
                   <Checkbox
                     checked={selectedIds.includes(row.id)}
                     onCheckedChange={() => toggleSelectOne(row.id)}
@@ -197,7 +197,7 @@ export default function ReusableTable<T extends { id: number | string, image?: s
                         {row[col.accessor] ? 'Hoạt động' : 'Không hoạt động'}
                       </div>
                     ) : (
-                      String(row[col.accessor])
+                      <span className='capitalize'>{String(row[col.accessor])}</span>
                     )}
                   </TableCell>
                 ))}
