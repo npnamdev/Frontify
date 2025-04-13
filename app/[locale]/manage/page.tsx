@@ -69,7 +69,7 @@ export default function App() {
 
   if (debouncedSearch) {
     queryParams.append('search', debouncedSearch);
-    queryParams.append('searchFields', 'username,email');
+    queryParams.append('searchFields', 'fullName,username,email');
   }
 
   const url = `https://api.wedly.info/api/users?${queryParams.toString()}`;

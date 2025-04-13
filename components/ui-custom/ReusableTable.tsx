@@ -122,6 +122,7 @@ export default function ReusableTable<T extends { id: number | string, image?: s
         </div>
 
         <div className='flex items-center gap-2'>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
@@ -166,13 +167,13 @@ export default function ReusableTable<T extends { id: number | string, image?: s
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-8">
+              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-6">
                 Đang tải dữ liệu...
               </TableCell>
             </TableRow>
           ) : data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-8">
+              <TableCell colSpan={visibleColumns.length + 2} className="text-center py-6">
                 Không có dữ liệu
               </TableCell>
             </TableRow>
