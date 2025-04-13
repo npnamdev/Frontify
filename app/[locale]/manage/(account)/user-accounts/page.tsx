@@ -29,7 +29,7 @@ type Column<T> = {
   header: string;
   accessor: keyof T;
   visible?: boolean;
-  type?: 'group' | 'image' | 'date' | 'badge';
+  type?: 'group' | 'image' | 'system' | 'badge';
 };
 
 const columns: Column<User>[] = [
