@@ -57,3 +57,69 @@ export default async function LocaleLayout({
     </html>
   );
 }
+
+
+// app/layout.tsx
+// import { cookies } from 'next/headers';
+// import Navbar from '@/components/Navbar';
+
+// export default async function RootLayout({ children }: { children: React.ReactNode }) {
+//   const cookieStore = cookies();
+//   const refreshToken = cookieStore.get('refreshToken')?.value;
+//   let user = null;
+
+//   if (refreshToken) {
+//     try {
+//       const response = await fetch(`${process.env.BACKEND_URL}/auth/me`, {
+//         headers: {
+//           'Cookie': `refreshToken=${refreshToken}`,
+//         },
+//       });
+//       if (response.ok) {
+//         user = await response.json(); // { username, avatar, role }
+//       }
+//     } catch (error) {
+//       console.error('Error fetching user:', error);
+//     }
+//   }
+
+//   return (
+//     <html lang="en">
+//       <body>
+//         <Navbar user={user} />
+//         {children}
+//       </body>
+//     </html>
+//   );
+// }
+
+
+// app/layout.tsx
+// import { cookies } from 'next/headers';
+// import Navbar from '@/components/Navbar';
+
+// export default async function RootLayout({ children }: { children: React.ReactNode }) {
+//   const cookieStore = cookies();
+//   const refreshToken = cookieStore.get('refreshToken')?.value;
+//   let user = null;
+
+//   if (refreshToken) {
+//     try {
+//       const response = await fetch(`${process.env.BACKEND_URL}/auth/me`);
+//       if (response.ok) {
+//         user = await response.json(); // { username, avatar, role }
+//       }
+//     } catch (error) {
+//       console.error('Error fetching user:', error);
+//     }
+//   }
+
+//   return (
+//     <html lang="en">
+//       <body>
+//         <Navbar user={user} />
+//         {children}
+//       </body>
+//     </html>
+//   );
+// }
