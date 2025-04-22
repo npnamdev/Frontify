@@ -1,3 +1,51 @@
+import { NextResponse, type NextRequest } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+
+const intlMiddleware = createMiddleware(routing);
+
+// Những route cần đăng nhập
+const protectedPrefix = '/manage';
+
+export default async function middleware(request: NextRequest) {
+  // 1. Xử lý i18n trước
+  const intlResponse = intlMiddleware(request);
+  if (intlResponse) return intlResponse;
+
+  const pathname = request.nextUrl.pathname;
+  const isProtected = pathname.startsWith(protectedPrefix);
+
+  if (isProtected) {
+    const refreshToken = request.cookies.get('refreshToken')?.value;
+
+    // Không có token → redirect
+    if (!refreshToken) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    // Có token thì kiểm tra hợp lệ
+    try {
+      const res = await fetch(`${process.env.BACKEND_URL}/auth/verify-refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!res.ok) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+    } catch (err) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/', '/(en|vi)/:path*', '/manage/:path*'], 
+};
+
 // import createMiddleware from 'next-intl/middleware';
 // import { routing } from './i18n/routing';
 
@@ -89,61 +137,64 @@
 
 
 // middleware.ts
-import { NextResponse, type NextRequest } from 'next/server';
-import createMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
+// import { NextResponse, type NextRequest } from 'next/server';
+// import createMiddleware from 'next-intl/middleware';
+// import { routing } from './i18n/routing';
 
-const intlMiddleware = createMiddleware(routing);
+// const intlMiddleware = createMiddleware(routing);
 
-// Danh sách các route cần bảo vệ
-const protectedPaths = ['/dashboard', '/profile', '/settings'];
+// // Danh sách các route cần bảo vệ
+// const protectedPaths = ['/dashboard', '/profile', '/settings'];
 
-export default async function middleware(request: NextRequest) {
-  // 1. Xử lý i18n trước
-  const intlResponse = intlMiddleware(request);
-  if (intlResponse) return intlResponse;
+// export default async function middleware(request: NextRequest) {
+//   // 1. Xử lý i18n trước
+//   const intlResponse = intlMiddleware(request);
+//   if (intlResponse) return intlResponse;
 
-  // 2. Kiểm tra refresh token từ cookie
-  const refreshToken = request.cookies.get('refreshToken')?.value; // Đổi tên nếu cần
+//   console.log("intlResponse", intlResponse);
   
-  // Kiểm tra xem request có nằm trong protected paths không
-  const isProtectedPath = protectedPaths.some(path =>
-    request.nextUrl.pathname.startsWith(path)
-  );
 
-  // 3. Nếu là protected path và không có refresh token, redirect về login
-  if (isProtectedPath && !refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+//   // 2. Kiểm tra refresh token từ cookie
+//   const refreshToken = request.cookies.get('refreshToken')?.value; // Đổi tên nếu cần
+  
+//   // Kiểm tra xem request có nằm trong protected paths không
+//   const isProtectedPath = protectedPaths.some(path =>
+//     request.nextUrl.pathname.startsWith(path)
+//   );
 
-  // 4. (Tùy chọn) Gọi API để kiểm tra tính hợp lệ của refresh token
-  if (isProtectedPath && refreshToken) {
-    try {
-      const response = await fetch(`${process.env.BACKEND_URL}/auth/verify-refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
+//   // 3. Nếu là protected path và không có refresh token, redirect về login
+//   if (isProtectedPath && !refreshToken) {
+//     return NextResponse.redirect(new URL('/login', request.url));
+//   }
 
-      if (!response.ok) {
-        // Nếu refresh token không hợp lệ, redirect về login
-        return NextResponse.redirect(new URL('/login', request.url));
-      }
-    } catch (error) {
-      console.error('Error verifying refresh token:', error);
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
+//   // 4. (Tùy chọn) Gọi API để kiểm tra tính hợp lệ của refresh token
+//   if (isProtectedPath && refreshToken) {
+//     try {
+//       const response = await fetch(`${process.env.BACKEND_URL}/auth/verify-refresh`, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ refreshToken }),
+//       });
 
-  // 5. Tiếp tục xử lý request nếu mọi thứ ổn
-  return NextResponse.next();
-}
+//       if (!response.ok) {
+//         // Nếu refresh token không hợp lệ, redirect về login
+//         return NextResponse.redirect(new URL('/login', request.url));
+//       }
+//     } catch (error) {
+//       console.error('Error verifying refresh token:', error);
+//       return NextResponse.redirect(new URL('/login', request.url));
+//     }
+//   }
 
-export const config = {
-  matcher: ['/', '/(en|vi)/:path*', '/dashboard/:path*', '/profile/:path*', '/settings/:path*']
-};
+//   // 5. Tiếp tục xử lý request nếu mọi thứ ổn
+//   return NextResponse.next();
+// }
+
+// export const config = {
+//   matcher: ['/', '/(en|vi)/:path*', '/manage/:path*']
+// };
 
 
 // middleware.ts

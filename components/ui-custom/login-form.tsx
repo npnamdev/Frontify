@@ -12,18 +12,45 @@ export function LoginForm({
     className,
     ...props
 }: React.ComponentPropsWithoutRef<"form">) {
-    const [email, setEmail] = useState('root@doman.com');
-    const [password, setPassword] = useState('root123456');
+    const [email, setEmail] = useState('admin@wedly.info');
+    const [password, setPassword] = useState('namdev');
     const router = useRouter();
     const currentLocale = useLocale();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        console.log("Email:", email)
-        console.log("Password:", password)
-        toast.success("Đăng nhập thành công");
-        router.replace('/manage', { locale: currentLocale });
-    }
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('https://api.wedly.info/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // gửi cookie
+                body: JSON.stringify({
+                    email,
+                    password
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Đăng nhập thất bại');
+            }
+
+            const data = await response.json();
+
+            // Lưu accessToken vào localStorage
+            localStorage.setItem('accessToken', data.accessToken);
+
+            toast.success("Đăng nhập thành công");
+            router.replace('/manage', { locale: currentLocale });
+        } catch (error: any) {
+            console.error("Login error:", error);
+            toast.error(error.message || "Đăng nhập thất bại");
+        }
+    };
+
 
     return (
         <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
