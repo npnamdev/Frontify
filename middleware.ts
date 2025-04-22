@@ -11,32 +11,9 @@ export default async function middleware(request: NextRequest) {
   // 1. Xử lý i18n trước
   const intlResponse = intlMiddleware(request);
   if (intlResponse) return intlResponse;
-
-  const pathname = request.nextUrl.pathname;
-  const isProtected = pathname.startsWith(protectedPrefix);
-
-  if (isProtected) {
-    const refreshToken = request.cookies.get('refreshToken')?.value;
-
-    // Không có token → redirect
-    if (!refreshToken) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-
-    // Có token thì kiểm tra hợp lệ
-    try {
-      const res = await fetch(`${process.env.BACKEND_URL}/auth/verify-refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      if (!res.ok) {
-        return NextResponse.redirect(new URL('/login', request.url));
-      }
-    } catch (err) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
+  const token = request.cookies.get('refreshToken');
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
